@@ -3,71 +3,82 @@ const pool = require('../../config/database');
 
 module.exports = {
     //create user
-    create: (data, callback) =>{
+    create: (data) =>{
+        return new Promise((resolve, reject) => {
         pool.query(
-            `INSERT INTO user(first_name,last_name,user_contact,user_password,user_email) VALUES (?,?,?,?,?)`,
-            [data.first_name,data.last_name,data.user_contact,data.user_password,data.user_email],
+            `INSERT INTO Users(user_firstname,user_lastname,user_email_address,user_company_id,user_driver_license,user_contact,user_country_code,user_account_status,user_password,password_status,user_create_date,user_update_date) VALUES 
+            (?,?,?,?,?,?,?,?,?,?,?,?)`,
+            [data.first_name,data.last_name,data.user_email,data.user_company_id,data.user_driver_license,data.user_contact,data.user_contry_code, data.account_status, data.user_password,data.password_status, data.create_date, data.update_date],
             (error, results,fields)=>{
                 if(error){
-                 return callback(error);
+                    return reject(error);
                 }
-                return callback(null, results);
+                   return resolve(results);
             }
         );
+        })
     },
     //get users
-    getUsers: callBack => {
-        pool.query(
-            `SELECT * FROM user`, [],
-            (error, results, fields) =>{
-                if(error){
-                    return callBack(error);
+    getUsers:  () => {
+        return new Promise((resolve, reject)=>{
+            pool.query(
+                `SELECT * FROM Users`, [],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
                 }
-                return  callBack(null, results);
-            }
-        );
-    },
+            );
+        });
+          },
     //get user by id
-    getUser: (id, callBack) =>{
-        pool.query(
-            `SELECT * FROM user WHERE user_id=?`, [id],
-            (error, results, fields)=>{
-                if (error){
-                    return callBack(error);
+    getUser: (id) => {
+        return new Promise((resolve, reject)=> {
+            pool.query(
+                `SELECT * FROM Users WHERE user_id=?`, [id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results[0])
                 }
-                return callBack(null, results[0])
-            }
-        );
+            );
+        });
     },
     //user update
-    updateUser: (data, callBack)=>{
+    updateUser: (data) =>{
+        return new Promise((resolve, reject)=>{
         pool.query(
-            `UPDATE user SET first_name=?,last_name=?,user_contact=?,user_password=?,user_email=?  WHERE user_id = ?`,
-            [data.first_name, data.last_name, data.user_contact, data.user_password, data.user_email, data.user_id],
+            `UPDATE Users SET user_firstname=?,user_lastname=?,user_email_address=?,user_company_id=?,user_driver_license=?,user_contact=?,user_country_code=?,user_account_status=?,user_password=?,password_status=?,user_create_date=?,user_update_date=?  WHERE user_id = ?`,
+            [data.first_name,data.last_name,data.user_email,data.user_company_id,data.user_driver_license,data.user_contact,data.user_contry_code, data.account_status, data.user_password,data.password_status, data.create_date, data.update_date, data.user_id],
             (error, results,fields)=>{
                 if(error){
-                    return callBack(error);
+                    return reject(error);
                 }
-                return  callBack(null, results[0]);
-        }
-        );
-    },
-    //delete user
-    deleteUser: (data, callBack)=>{
-        pool.query(
-            `DELETE FROM user WHERE user_id= ?`,[data.user_id],
-            (error, results, fields) =>{
-                if(error){
-                    return callBack(error);
-                }
-                return callBack(null, results);
+                return resolve(results);
             }
         );
+        });
+    },
+    //delete user
+    deleteUser: (data)=>{
+        return new Promise((resolve,reject) => {
+        pool.query(
+            `DELETE FROM Users WHERE user_id= ?`,[data.user_id],
+            (error, results, fields) =>{
+                if(error){
+                    return reject(error);
+                }
+                return resolve(results);
+            }
+        );
+        });
     },
     //user login
     getUserByEmail: (user_email, callBack)=>{
         pool.query(
-            `SELECT * FROM user WHERE user_email = ?`,[user_email],
+            `SELECT * FROM Users WHERE user_email_address = ?`,[user_email],
             (error, results, fields)=>{
                 if(error){
                     callBack(error);
@@ -78,6 +89,3 @@ module.exports = {
     }
     //end
 };
-
-
-

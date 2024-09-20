@@ -18,10 +18,10 @@ module.exports = {
         })
     },
     //get project_bom
-    getBoms:  () => {
+    getBoms:  (segment_) => {
         return new Promise((resolve, reject)=>{
             pool.query(
-                `SELECT * FROM segment_bom_material`, [],
+                `SELECT * FROM segment_bom_material WHERE segment_id=?`, [segment_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);
@@ -62,10 +62,10 @@ module.exports = {
         });
     },
     //delete project_bom
-    deleteBom: (data)=>{
+    deleteBom: (bom_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `DELETE FROM segment_bom_material WHERE bom_material_id= ?`,[data.bom_id],
+                `DELETE FROM segment_bom_material WHERE bom_material_id= ?`,[bom_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

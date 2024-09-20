@@ -64,10 +64,10 @@ module.exports = {
         });
     },
     //delete service
-    deleteService: (data)=>{
+    deleteService: (service_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `UPDATE project_service SET service_status='Deleted' WHERE segment_service_id= ?`,[data.service_id],
+                `UPDATE project_service SET service_status='Deleted' WHERE segment_service_id= ?`,[service_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

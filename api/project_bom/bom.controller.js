@@ -1,6 +1,6 @@
 const {createBom,getBom, getBoms,updateBom,deleteBom} = require('./bom.service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -25,8 +25,8 @@ module.exports = {
     //get project_bom
     getBom: async (req, res, next)=>{
         try{
-            const body  = req.body;
-            const result = await getBom(body.bom_id);
+            const body  = req.query.bom_id;
+            const result = await getBom(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
             // }
@@ -40,10 +40,11 @@ module.exports = {
     },
 
     //
-    // get users
+    // get boms
     getBoms: async (req, res, next)=>{
         try{
-            const result = await getBoms();
+            const body = req.query.segment_id;
+            const result = await getBoms(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);
             // }
@@ -73,7 +74,7 @@ module.exports = {
     //delete project_bom
     deleteBom: async (req, res)=>{
         try{
-            const data = req.body;
+            const data = req.query.bom_id;
             const result = await  deleteBom(data);
             return res.json({
                 success:true,

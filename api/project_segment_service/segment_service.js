@@ -18,11 +18,11 @@ module.exports = {
                     }
 
                     const query = `INSERT INTO segment_implemetation_service
-                    (service_type,quantity,start_date,end_date,segment_id,user_id,service_create_date,service_status)
+                    (service_type,quantity,service_rate,start_date,end_date,segment_id,user_id,service_create_date,service_status)
                     VALUES ?`;
 
-                    const values = segments.map(data => [
-                        data.service_id, data.service_quantity, data.service_start_date, data.service_end_date, data.service_segment_id, data.service_user_id, data.site,dateTime,data.service_status
+                    const values = services.map(data => [
+                        data.service_id, data.service_quantity,data.service_rate, data.service_start_date, data.service_end_date, data.service_segment_id, data.service_user_id,dateTime,data.service_status
                     ]);
 
                     connection.query(query, [values], (error, results, fields) => {
@@ -51,13 +51,29 @@ module.exports = {
     },
 
     //get services
-    getServices:  (data) => {
+    getServices:  (segment_id) => {
         return new Promise((resolve, reject)=>{
             pool.query(
-                `SELECT project_service.service_name,segment_implemetation_service.* FROM segment_implemetation_service
-INNER JOIN project_service ON segment_implemetation_service.service_type=project_service.segment_service_id
-WHERE segment_implemetation_service.segment_id=?`,
-                [data.segmnet_id],
+                `SELECT 
+    project_service.service_name,
+    segment_implemetation_service.*,
+    COALESCE((
+        SELECT SUM(service_change_quantity)
+        FROM segment_service_change_request 
+        WHERE 
+            segment_service_change_request.segment_id = segment_implemetation_service.segment_id
+            AND segment_service_change_request.service_id = segment_implemetation_service.service_type
+            AND segment_service_change_request.service_change_status = 'Approved'
+    ), 0) AS change_request
+FROM 
+    segment_implemetation_service
+INNER JOIN 
+    project_service 
+ON 
+    segment_implemetation_service.service_type = project_service.segment_service_id
+WHERE 
+    segment_implemetation_service.segment_id = ?`,
+                [segment_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);
@@ -68,12 +84,12 @@ WHERE segment_implemetation_service.segment_id=?`,
         });
     },
     //get Service by id
-    getService: (service_id) => {
+    getService: (implementation_service_id) => {
         return new Promise((resolve, reject)=> {
             pool.query(
                 `SELECT project_service.service_name,segment_implemetation_service.* FROM segment_implemetation_service
 INNER JOIN project_service ON segment_implemetation_service.service_type=project_service.segment_service_id
-WHERE segment_implemetation_service.implementation_service_id=?`, [service_id],
+WHERE segment_implemetation_service.implementation_service_id=?`, [implementation_service_id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -100,10 +116,10 @@ WHERE segment_implemetation_service.implementation_service_id=?`, [service_id],
         });
     },
     //delete service
-    deleteService: (data)=>{
+    deleteService: (implementation_service_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `UPDATE segment_implemetation_service SET service_status= "Deleted" WHERE implementation_service_id= ?`,[data.segment_id],
+                `UPDATE segment_implemetation_service SET service_status= "Deleted" WHERE implementation_service_id= ?`,[implementation_service_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

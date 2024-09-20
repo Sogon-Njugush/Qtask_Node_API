@@ -51,13 +51,13 @@ module.exports = {
     },
 
     //get project_bom kpi
-    getBomKpis: (data) => {
+    getBomKpis: (segment_id) => {
         return new Promise((resolve, reject)=>{
             pool.query(
                 `SELECT project_segment.segment_name, material_kpi.* FROM  material_kpi
 INNER JOIN project_segment ON project_segment.segment_id=material_kpi.segment_id
 WHERE material_kpi.segment_id=?`,
-                [data.segment_id],
+                [segment_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);
@@ -68,12 +68,12 @@ WHERE material_kpi.segment_id=?`,
         });
     },
     //get material Kpi by id
-    getBomKpi: (data) => {
+    getBomKpi: (material_kpi_id) => {
         return new Promise((resolve, reject)=> {
             pool.query(
                 `SELECT project_segment.segment_name,material_kpi.* FROM material_kpi
 INNER JOIN project_segment ON project_segment.segment_id=material_kpi.segment_id
-WHERE material_kpi.material_kpi_id=?`, [data.material_kpi_id],
+WHERE material_kpi.material_kpi_id=?`, [material_kpi_id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -101,10 +101,10 @@ WHERE material_kpi.material_kpi_id=?`, [data.material_kpi_id],
         });
     },
     //delete project_segment project_bom kpi
-    deleteBomKpi: (data)=>{
+    deleteBomKpi: (material_kpi_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `UPDATE material_kpi SET material_status= "Deleted" WHERE material_kpi_id= ?`,[data.material_kpi_id],
+                `UPDATE material_kpi SET material_status= "Deleted" WHERE material_kpi_id= ?`,[material_kpi_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

@@ -26,7 +26,7 @@ module.exports = {
         return new Promise((resolve, reject)=>{
             pool.query(
                 `SELECT project.*, region.region_name, customer.customer_name FROM project 
-INNER JOIN Company ON Company.company_id=project.company_id
+INNER JOIN company ON company.company_id=project.company_id
 INNER JOIN customer ON customer.customer_id = project.project_customer_id
 INNER JOIN region ON region.region_id = project.project_region_id WHERE project.project_status!='Deleted' AND project.company_id=?`,
                 [company_id],
@@ -43,10 +43,12 @@ INNER JOIN region ON region.region_id = project.project_region_id WHERE project.
     getProject: (project_id) => {
         return new Promise((resolve, reject)=> {
             pool.query(
-                `SELECT project.*, region.region_name, customer.customer_name FROM project 
-INNER JOIN Company ON Company.company_id=project.company_id
+                `SELECT project.*, region.region_name, customer.customer_name, CONCAT(u.user_firstname, ' ', u.user_lastname) AS project_manager FROM project 
+INNER JOIN company ON company.company_id=project.company_id
 INNER JOIN customer ON customer.customer_id = project.project_customer_id
-INNER JOIN region ON region.region_id = project.project_region_id WHERE project.project_status!='Deleted' AND  project.project_id=?`, [project_id],
+INNER JOIN Users u ON u.user_id =  project.project_manager_id
+INNER JOIN region ON region.region_id = project.project_region_id
+ WHERE project.project_id=?`, [project_id],
                 (error, results, fields) => {
                     if (error) {
                         return reject(error);
@@ -74,10 +76,10 @@ INNER JOIN region ON region.region_id = project.project_region_id WHERE project.
         });
     },
     //delete project_bom
-    deleteProject: (data)=>{
+    deleteProject: (project_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `UPDATE project SET project_status= "Deleted" WHERE project_id= ?`,[data.project_id],
+                `UPDATE project SET project_status= "Deleted" WHERE project_id= ?`,[project_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

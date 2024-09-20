@@ -1,6 +1,6 @@
 const {createJobCard,getJobCard, getJobCards,updateJobCard,deleteJobCard} = require('./jobCard_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
     //get project_segment job card by id
     getJobCard: async (req, res, next)=>{
         try{
-            const body  = req.body;
+            const body  = req.query;
             const result = await getJobCard(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
@@ -40,7 +40,7 @@ module.exports = {
     // get all project_segment job Cards
     getJobCards: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query;
             const result = await getJobCards(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);
@@ -71,7 +71,7 @@ module.exports = {
     //delete  project_segment job card
     deleteJobCard: async (req, res, next)=>{
         try{
-            const data = req.body;
+            const data = req.query.project_job_card_id;
             const result = await  deleteJobCard(data);
             return res.json({
                 success:true,

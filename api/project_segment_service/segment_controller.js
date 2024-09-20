@@ -1,6 +1,6 @@
 const {createService,getService, getServices,updateService,deleteService} = require('./segment_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -12,7 +12,7 @@ module.exports = {
 
             return res.json({
                 success: true,
-                message: "Segments created successfully!",
+                message: "Segments Service created successfully!",
                 data: result
             });
         } catch (e) {
@@ -23,8 +23,8 @@ module.exports = {
     //get service
     getServices: async (req, res, next)=>{
         try{
-            const body  = req.body;
-            const result = await getServices(body.segment_id);
+            const body  = req.query.segment_id;
+            const result = await getServices(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
             // }
@@ -41,7 +41,7 @@ module.exports = {
     // get project_segment services
     getService: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query.implementation_service_id;
             const result = await getService(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);
@@ -72,11 +72,11 @@ module.exports = {
     //delete project_segment service
     deleteService: async (req, res, next)=>{
         try{
-            const data = req.body;
+            const data = req.query.implementation_service_id;
             const result = await  deleteService(data);
             return res.json({
                 success:true,
-                data: "Segment deleted successfully",
+                data: "Segment Service deleted successfully",
             });
         }catch (e) {
             next(e)

@@ -1,6 +1,6 @@
 const {createService,getService, getServices,updateService,deleteService} = require('./project_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -25,7 +25,7 @@ module.exports = {
     //get service
     getService: async (req, res, next)=>{
         try{
-            const body  = req.body;
+            const body  = req.query;
             const result = await getService(body.service_id);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
@@ -42,7 +42,7 @@ module.exports = {
     // get services
     getServices: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query;
             const result = await getServices(body.company_id);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);
@@ -73,7 +73,7 @@ module.exports = {
     //delete service
     deleteService: async (req, res, next)=>{
         try{
-            const data = req.body;
+            const data = req.query.service_id;
             const result = await  deleteService(data);
             return res.json({
                 success:true,

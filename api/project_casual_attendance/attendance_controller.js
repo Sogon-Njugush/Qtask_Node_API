@@ -1,6 +1,6 @@
 const {createAttendance,getAttendance, getAttendances,updateAttendance,timeoutCasual} = require('./attendance_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
     //get casual by id
     getAttendance: async (req, res, next)=>{
         try{
-            const body  = req.body;
+            const body  = req.query;
             const result = await getAttendance(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
@@ -40,7 +40,7 @@ module.exports = {
     // get casual
     getAttendances: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query;
             const result = await getAttendances(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);

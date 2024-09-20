@@ -1,6 +1,6 @@
 const {createServiceKpi,getServiceKpi, getServiceKpis,updateServiceKpi,deleteServiceKpi} = require('./service_kpi');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
     //get project_segment service kpi by id
     getServiceKpi: async (req, res, next)=>{
         try{
-            const body  = req.body;
+            const body  = req.query.service_kpi_id;
             const result = await getServiceKpi(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
@@ -40,7 +40,7 @@ module.exports = {
     // get service kpi
     getServiceKpis: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query.segment_id;
             const result = await getServiceKpis(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);
@@ -71,7 +71,7 @@ module.exports = {
     //delete project_segment service kpi
     deleteServiceKpi: async (req, res, next)=>{
         try{
-            const data = req.body;
+            const data = req.body.service_kpi_id;
             const result = await  deleteServiceKpi(data);
             return res.json({
                 success:true,

@@ -1,6 +1,6 @@
 const {closeSegment} = require('./closeSegment_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {

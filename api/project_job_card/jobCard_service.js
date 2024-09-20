@@ -105,11 +105,11 @@ WHERE project_job_card.project_job_card_id =?`, [data.project_job_card_id],
         });
     },
     //delete Attendance
-    deleteJobCard: (data)=>{
+    deleteJobCard: (project_job_card_id)=>{
         const dateTimeOut = new Date();
         return new Promise((resolve,reject) => {
             pool.query(
-                `DELETE FROM project_job_card WHERE project_job_card_id= ?`,[data.project_job_card_id],
+                `DELETE FROM project_job_card WHERE project_job_card_id= ?`,[project_job_card_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

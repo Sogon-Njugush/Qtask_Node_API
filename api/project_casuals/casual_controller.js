@@ -1,6 +1,6 @@
 const {createCasual,getCasual, getCasuals,updateCasual,deleteCasual} = require('./casual_service');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
     //get casual by id
     getCasual: async (req, res, next)=>{
         try{
-            const body  = req.body;
+            const body  = req.query;
             const result = await getCasual(body);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
@@ -40,7 +40,7 @@ module.exports = {
     // get casual
     getCasuals: async (req, res, next)=>{
         try{
-            const body = req.body;
+            const body = req.query;
             const result = await getCasuals(body);
             // if(!result.length){
             //     throw new AppError("Error Bom not found!",403);

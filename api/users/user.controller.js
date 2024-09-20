@@ -1,7 +1,7 @@
 const {create,getUsers,getUser,updateUser,deleteUser, getUserByEmail} = require('./user.service');
 const {genSaltSync,hashSync,compareSync} = require('bcrypt');
 require('dotenv').config();
-const AppError  = require("../../utils/appError");
+const AppError  = require("../../util/appError");
 const {sign} = require('jsonwebtoken');
 
 module.exports = {

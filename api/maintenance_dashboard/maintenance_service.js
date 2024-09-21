@@ -202,7 +202,6 @@ GROUP BY ticket.ticket_id ORDER BY ticket.ticket_id DESC`,
             pool.query(
                 `SELECT 
     customer.customer_name,
-    ticket.ticket_customer_id,
     DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
     COUNT(ticket.ticket_id) AS total_tickets,
     SUM(CASE WHEN ticket.ticket_state = 'breached' THEN 1 ELSE 0 END) AS total_breached
@@ -219,6 +218,38 @@ ORDER BY
     ticket.ticket_customer_id,
     ticket_date`,
                 [company_id],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //ticket list by status
+    getTicketListByStatus:(company_id,status) => {
+        return new Promise((resolve, reject)=>{
+            pool.query(
+                `SELECT 
+    c.customer_name, s.sla_time_hrs AS sla_hrs, s.sla_time_min AS sla_min,  st.site_name, 
+    sv.service_name, t.ticket_id, t.ticket_no, t.ticket_actual_time, t.ticket_create_time, 
+    t.ticket_subject,  t.ticket_state, 
+    IF(t.ticket_status = '', 'scheduled', t.ticket_status) AS ticket_status,
+    t.ticket_case_no FROM ticket t
+INNER JOIN 
+    customer c ON c.customer_id = t.ticket_customer_id
+INNER JOIN 
+    sla s ON s.sla_id = t.ticket_sla_id
+INNER JOIN 
+    site st ON st.site_id = t.ticket_site_id
+INNER JOIN 
+    service_type sv ON sv.service_type_id = t.ticket_service_type_id
+WHERE 
+    sv.service_type_branch_id = ?
+    AND (? = 'all' OR t.ticket_status = ?)
+ORDER BY t.ticket_create_time DESC`,
+                [company_id, status, status],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

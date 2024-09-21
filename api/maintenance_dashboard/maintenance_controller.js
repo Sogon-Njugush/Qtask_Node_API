@@ -1,4 +1,4 @@
-const {getCount, getMTTR, getRecentUpdate, getTicketTraffic,getBreached,getBreachedAnalysis} = require('./maintenance_service');
+const {getCount, getMTTR, getRecentUpdate, getTicketTraffic,getBreached,getBreachedAnalysis,getTicketListByStatus} = require('./maintenance_service');
 require('dotenv').config();
 const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
@@ -90,6 +90,22 @@ module.exports = {
         try{
             const body  = req.query.company_id;
             const result = await getBreachedAnalysis(body);
+            // if(!result.length){
+            //     throw new AppError("Error Item not found!",403);
+            // }
+            return res.json({
+                success:true,
+                data:result,
+            });
+        }catch (e) {
+            next(e);
+        }
+    },
+    //get breached analysis
+    getTicketListByStatus:async (req, res, next)=>{
+        try{
+            const { company_id, status } = req.query;
+            const result = await getTicketListByStatus(company_id, status);
             // if(!result.length){
             //     throw new AppError("Error Item not found!",403);
             // }

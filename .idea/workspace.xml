@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="71c8c5dd-1568-4dd6-a885-d3032a982acd" name="Changes" comment="">
+    <list default="true" id="71c8c5dd-1568-4dd6-a885-d3032a982acd" name="Changes" comment="breached ticket analysis">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" afterDir="false" />
@@ -47,8 +47,16 @@
       <workItem from="1726482355908" duration="12000" />
       <workItem from="1726482399478" duration="613000" />
       <workItem from="1726644356808" duration="35000" />
-      <workItem from="1726899704300" duration="3371000" />
+      <workItem from="1726899704300" duration="6256000" />
     </task>
+    <task id="LOCAL-00001" summary="breached ticket analysis">
+      <created>1726903766873</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1726903766873</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -64,5 +72,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="breached ticket analysis" />
+    <option name="LAST_COMMIT_MESSAGE" value="breached ticket analysis" />
   </component>
 </project>

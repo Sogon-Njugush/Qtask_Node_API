@@ -1,4 +1,4 @@
-const {getCount, getMTTR,getRecentUpdate,getTicketTraffic,getBreached,getBreachedAnalysis} = require('./maintenance_controller');
+const {getCount, getMTTR,getRecentUpdate,getTicketTraffic,getBreached,getBreachedAnalysis,getTicketListByStatus} = require('./maintenance_controller');
 const router = require('express').Router();
 
 //validate token
@@ -19,5 +19,7 @@ router.get("/getTicketTraffic", checkToken, getTicketTraffic);
 router.get("/getBreached", checkToken, getBreached);
 //get breached tickets analysis
 router.get("/getBreachedAnalysis", checkToken, getBreachedAnalysis);
+//get ticket list by status
+router.get("/getTicketListByStatus", checkToken, getTicketListByStatus);
 
 module.exports = router;

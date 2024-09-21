@@ -2,49 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="71c8c5dd-1568-4dd6-a885-d3032a982acd" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/api/project/project.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project/project.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project/project.router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project/project.router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project/project.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project/project.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom/bom.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom/bom.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom/bom.router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom/bom.router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom/bom.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom/bom.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_bom_kpi/bom_kpi_service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casual_attendance/attendance_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casual_attendance/attendance_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casual_attendance/attendance_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casual_attendance/attendance_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casual_task/casualTask_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casual_task/casualTask_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casual_task/casualTask_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casual_task/casualTask_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casuals/casual_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casuals/casual_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_casuals/casual_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_casuals/casual_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_close_segment/closeSegment_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_close_segment/closeSegment_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_close_segment/closeSegment_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_close_segment/closeSegment_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_company_service/project_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_company_service/project_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_company_service/project_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_company_service/project_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_company_service/project_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_company_service/project_service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_job_card/jobCard_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_job_card/jobCard_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_job_card/jobCard_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_job_card/jobCard_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_job_card/jobCard_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_job_card/jobCard_service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment/segment.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment/segment.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment/segment.router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment/segment.router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment/segment.service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment/segment.service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_bom/bom_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_bom/bom_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_bom/bom_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_bom/bom_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_bom/bom_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_bom/bom_service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_service/segment_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_service/segment_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_service/segment_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_service/segment_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_segment_service/segment_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_segment_service/segment_service.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_service_kpi/service_kpi.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_service_kpi/service_kpi.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_service_kpi/service_kpi_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_service_kpi/service_kpi_controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/project_service_kpi/service_kpi_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/project_service_kpi/service_kpi_router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/users/user.controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/users/user.controller.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/users/user.router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/users/user.router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth/token_validation.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/info.log" beforeDir="false" afterPath="$PROJECT_DIR$/info.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/appError.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_service.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_service.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,15 +26,15 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/var/www/html",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/var/www/html&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -86,6 +47,7 @@
       <workItem from="1726482355908" duration="12000" />
       <workItem from="1726482399478" duration="613000" />
       <workItem from="1726644356808" duration="35000" />
+      <workItem from="1726899704300" duration="3371000" />
     </task>
     <servers />
   </component>

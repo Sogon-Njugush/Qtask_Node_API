@@ -138,13 +138,20 @@ LIMIT 10`,
         return new Promise((resolve, reject)=>{
             pool.query(
                 `SELECT 
-    service_type.service_name, 
-    COUNT(*) AS total_count FROM  ticket
-INNER JOIN 
-    service_type ON service_type.service_type_id = ticket.ticket_service_type_id
-WHERE service_type.service_type_branch_id = ?
-    AND MONTH(ticket.ticket_create_time) = MONTH(CURDATE())
-GROUP BY service_type.service_name ORDER BY total_count DESC`,
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
+    COUNT(ticket.ticket_id) AS ticket_count,
+    customer.customer_name AS service_name
+FROM 
+    ticket
+JOIN 
+    customer ON ticket.ticket_customer_id = customer.customer_id
+WHERE 
+    customer.customer_company_id = ?
+GROUP BY
+ ticket.ticket_customer_id,
+   DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d')
+ORDER BY 
+    ticket_date`,
                 [company_id],
                 (error, results, fields) =>{
                     if(error){
@@ -179,6 +186,38 @@ LEFT JOIN
     Users ON Users.user_id = ticket_assign.agent_id
 WHERE  service_type.service_type_branch_id = ? AND ticket.ticket_state = 'breached' AND ticket.ticket_status != 'closed'
 GROUP BY ticket.ticket_id ORDER BY ticket.ticket_id DESC`,
+                [company_id],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //breached ticket analysis
+    getBreachedAnalysis:(company_id) => {
+        return new Promise((resolve, reject)=>{
+            pool.query(
+                `SELECT 
+    customer.customer_name,
+    ticket.ticket_customer_id,
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
+    COUNT(ticket.ticket_id) AS total_tickets,
+    SUM(CASE WHEN ticket.ticket_state = 'breached' THEN 1 ELSE 0 END) AS total_breached
+FROM 
+    ticket
+JOIN 
+    customer ON ticket.ticket_customer_id = customer.customer_id
+WHERE 
+    customer.customer_company_id = ?
+GROUP BY 
+    ticket.ticket_customer_id,
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d')
+ORDER BY 
+    ticket.ticket_customer_id,
+    ticket_date`,
                 [company_id],
                 (error, results, fields) =>{
                     if(error){

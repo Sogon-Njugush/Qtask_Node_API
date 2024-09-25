@@ -70,7 +70,7 @@ WHERE service_type.service_type_branch_id = ?`, [company_id],
             pool.query(
                 `SELECT 
     service_type.service_name AS service_name,
-    DATE(ticket.ticket_create_time) AS ticket_date,
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
     COUNT(ticket.ticket_id) AS total_count,
     SUM(TIMESTAMPDIFF(MINUTE, 
             STR_TO_DATE(ticket_actual_time, '%Y-%m-%d %h:%i:%s %p'), 
@@ -88,7 +88,7 @@ LEFT JOIN ticket_hold ON ticket.ticket_id = ticket_hold.ticket_id
     AND ticket.ticket_status = 'closed'
     AND Users.user_company_id = ?
 WHERE 
-    DATE(ticket.ticket_create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE()
+    DATE(ticket.ticket_create_time) BETWEEN DATE_SUB(CURDATE(), INTERVAL 14 DAY) AND CURDATE()
     AND Users.user_company_id = ?
 GROUP BY service_type.service_name, DATE(ticket.ticket_create_time)`,
                 [company_id, company_id],
@@ -230,13 +230,18 @@ ORDER BY
     //ticket list by status
     getTicketListByStatus:(company_id,status) => {
         return new Promise((resolve, reject)=>{
+            // Clean the status to remove any extra quotes
+            const cleanStatus = status.replace(/'/g, '');
             pool.query(
                 `SELECT 
     c.customer_name, s.sla_time_hrs AS sla_hrs, s.sla_time_min AS sla_min,  st.site_name, 
     sv.service_name, t.ticket_id, t.ticket_no, t.ticket_actual_time, t.ticket_create_time, 
-    t.ticket_subject,  t.ticket_state, 
-    IF(t.ticket_status = '', 'scheduled', t.ticket_status) AS ticket_status,
-    t.ticket_case_no FROM ticket t
+    t.ticket_subject, 
+    IF(t.ticket_state = '', 'scheduled', t.ticket_state) AS ticket_state,
+    IF(t.ticket_status = '', 'new', t.ticket_status) AS ticket_status,
+    t.ticket_case_no,
+    GROUP_CONCAT(CONCAT(u.user_firstname, ' ', u.user_lastname) SEPARATOR ', ') AS assigned_users
+     FROM ticket t
 INNER JOIN 
     customer c ON c.customer_id = t.ticket_customer_id
 INNER JOIN 
@@ -245,11 +250,173 @@ INNER JOIN
     site st ON st.site_id = t.ticket_site_id
 INNER JOIN 
     service_type sv ON sv.service_type_id = t.ticket_service_type_id
+INNER JOIN 
+    ticket_assign ta ON ta.ticket_id = t.ticket_id
+INNER JOIN 
+    Users u ON u.user_id = ta.agent_id
 WHERE 
     sv.service_type_branch_id = ?
-    AND (? = 'all' OR t.ticket_status = ?)
+    AND (? = 'all' OR 
+         (? = 'new' AND t.ticket_status = '') OR 
+         (t.ticket_status = ?))
+GROUP BY t.ticket_id
 ORDER BY t.ticket_create_time DESC`,
-                [company_id, status, status],
+                [company_id, cleanStatus, cleanStatus, cleanStatus],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+ // reports by region
+    getReportByRegion:(company_id) => {
+        return new Promise((resolve, reject)=>{
+            pool.query(
+                `SELECT 
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
+    customer.customer_name,
+    site.site_name AS region_name,
+    service_type.service_name,
+    COUNT(ticket.ticket_id) AS total_tickets,
+    SUM(CASE WHEN ticket.ticket_state = 'breached' THEN 1 ELSE 0 END) AS breached_tickets,
+   ROUND((SUM(TIMESTAMPDIFF(MINUTE, 
+                        STR_TO_DATE(ticket_actual_time, '%Y-%m-%d %h:%i:%s %p'), 
+                        STR_TO_DATE(noc_close_time, '%Y-%m-%d %h:%i:%s %p')
+                )) - 
+                COALESCE(SUM(TIMESTAMPDIFF(MINUTE, 
+                        STR_TO_DATE(ticket_hold.ticket_hold_time, '%Y-%m-%d %h:%i:%s %p'), 
+                        STR_TO_DATE(ticket_hold.ticket_release_time, '%Y-%m-%d %h:%i:%s %p')
+                )), 0)) / COUNT(ticket.ticket_id), 2) AS mttr
+FROM
+    ticket
+JOIN 
+    customer ON customer.customer_id = ticket.ticket_customer_id
+JOIN 
+    site ON site.site_id = ticket.ticket_site_id
+JOIN 
+    service_type ON service_type.service_type_id = ticket.ticket_service_type_id
+INNER JOIN 
+    noc_close_ticket ON noc_close_ticket.ticket_id = ticket.ticket_id
+LEFT JOIN 
+ticket_hold ON ticket.ticket_id = ticket_hold.ticket_id
+WHERE 
+    service_type.service_type_branch_id = ? AND ticket.ticket_status='closed'
+GROUP BY 
+    customer.customer_id, 
+    site.site_id, 
+    service_type.service_type_id, 
+    ticket_date`,
+                [company_id],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    // report counts
+    getReportCounts: (company_id) => {
+        return new Promise((resolve, reject) => {
+            pool.query(
+                `SELECT
+                site_count,customer_count,
+                service_count,users_count
+            FROM
+            (
+                SELECT
+                    (SELECT COUNT(*) 
+                     FROM site 
+                     WHERE site_company_id = ?
+                     AND (site_status = '' OR LOWER(site_status) = 'active')
+                    ) AS site_count,
+
+                    (SELECT COUNT(*) 
+                     FROM customer 
+                     WHERE customer_company_id = ? 
+                     AND LOWER(customer_status) = 'active'
+                    ) AS customer_count,
+
+                    (SELECT COUNT(*) 
+                     FROM service_type 
+                     WHERE service_type_branch_id = ?
+                     AND (service_type_status = '' OR LOWER(service_type_status) = 'active')
+                    ) AS service_count,
+
+                    (SELECT COUNT(*) 
+                     FROM Users 
+                     JOIN user_role ON user_role.user_id = Users.user_id 
+                     JOIN roles ON roles.role_id = user_role.role_id 
+                     WHERE LOWER(role_name) = 'technician' 
+                     AND Users.user_company_id = ?
+                     AND LOWER(Users.user_account_status) = 'active'
+                    ) AS users_count
+            ) AS result`,
+                [company_id, company_id, company_id, company_id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+ //reports by technician
+    getTechnicianReport:(company_id) => {
+        return new Promise((resolve, reject)=>{
+            pool.query(
+                `SELECT 
+    CONCAT(Users.user_firstname, ' ', Users.user_lastname) AS agent_name,
+    site.site_name,service_type.service_name,
+    DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d') AS ticket_date,
+    COUNT(ticket.ticket_id) AS total_tickets,
+    SUM(CASE WHEN ticket.ticket_state = 'breached' THEN 1 ELSE 0 END) AS breached_tickets,
+    SUM(TIMESTAMPDIFF(MINUTE, 
+            STR_TO_DATE(ticket.ticket_actual_time, '%Y-%m-%d %h:%i:%s %p'), 
+            STR_TO_DATE(noc_close_ticket.noc_close_time, '%Y-%m-%d %h:%i:%s %p')
+        )) AS total_minutes,
+    COALESCE(SUM(TIMESTAMPDIFF(MINUTE, 
+            STR_TO_DATE(ticket_hold.ticket_hold_time, '%Y-%m-%d %h:%i:%s %p'), 
+            STR_TO_DATE(ticket_hold.ticket_release_time, '%Y-%m-%d %h:%i:%s %p')
+        )), 0) AS total_hold_minutes,
+    ROUND((SUM(TIMESTAMPDIFF(MINUTE, 
+            STR_TO_DATE(ticket.ticket_actual_time, '%Y-%m-%d %h:%i:%s %p'), 
+            STR_TO_DATE(noc_close_ticket.noc_close_time, '%Y-%m-%d %h:%i:%s %p')
+        )) - COALESCE(SUM(TIMESTAMPDIFF(MINUTE, 
+            STR_TO_DATE(ticket_hold.ticket_hold_time, '%Y-%m-%d %h:%i:%s %p'), 
+            STR_TO_DATE(ticket_hold.ticket_release_time, '%Y-%m-%d %h:%i:%s %p')
+        )), 0)) / COUNT(ticket.ticket_id), 2) AS mttr
+FROM 
+    ticket
+JOIN 
+    ticket_assign ON ticket_assign.ticket_id = ticket.ticket_id
+JOIN 
+    Users ON Users.user_id = ticket_assign.agent_id
+JOIN 
+    user_role ON user_role.user_id = Users.user_id
+JOIN 
+    roles ON roles.role_id = user_role.role_id
+JOIN 
+    site ON site.site_id = ticket.ticket_site_id
+JOIN 
+    service_type ON service_type.service_type_id = ticket.ticket_service_type_id
+JOIN 
+    noc_close_ticket ON noc_close_ticket.ticket_id = ticket.ticket_id
+LEFT JOIN 
+    ticket_hold ON ticket.ticket_id = ticket_hold.ticket_id
+WHERE 
+    Users.user_company_id = ?
+    AND LOWER(roles.role_name) = 'admin'
+    AND ticket.ticket_create_time >= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) 
+    AND YEAR(ticket.ticket_create_time) = YEAR(CURDATE())
+GROUP BY 
+    Users.user_id, site.site_id, ticket.ticket_service_type_id, DATE_FORMAT(ticket.ticket_create_time, '%Y-%m-%d')`,
+                [company_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

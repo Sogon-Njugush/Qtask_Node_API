@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="71c8c5dd-1568-4dd6-a885-d3032a982acd" name="Changes" comment="breached ticket analysis">
+    <list default="true" id="71c8c5dd-1568-4dd6-a885-d3032a982acd" name="Changes" comment="list all tickets by status">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_controller.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" beforeDir="false" afterPath="$PROJECT_DIR$/api/maintenance_dashboard/maintenance_router.js" afterDir="false" />
@@ -17,6 +17,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -47,7 +50,13 @@
       <workItem from="1726482355908" duration="12000" />
       <workItem from="1726482399478" duration="613000" />
       <workItem from="1726644356808" duration="35000" />
-      <workItem from="1726899704300" duration="6256000" />
+      <workItem from="1726899704300" duration="9806000" />
+      <workItem from="1727076828723" duration="1828000" />
+      <workItem from="1727080725994" duration="3764000" />
+      <workItem from="1727088592197" duration="639000" />
+      <workItem from="1727089243453" duration="1804000" />
+      <workItem from="1727165159760" duration="8152000" />
+      <workItem from="1727253003893" duration="2047000" />
     </task>
     <task id="LOCAL-00001" summary="breached ticket analysis">
       <created>1726903766873</created>
@@ -56,7 +65,14 @@
       <option name="project" value="LOCAL" />
       <updated>1726903766873</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="list all tickets by status">
+      <created>1726907768941</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1726907768941</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -75,6 +91,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="breached ticket analysis" />
-    <option name="LAST_COMMIT_MESSAGE" value="breached ticket analysis" />
+    <MESSAGE value="list all tickets by status" />
+    <option name="LAST_COMMIT_MESSAGE" value="list all tickets by status" />
   </component>
 </project>

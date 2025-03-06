@@ -54,9 +54,10 @@ module.exports = {
     getServiceKpis: (segment_id) => {
         return new Promise((resolve, reject)=>{
             pool.query(
-                `SELECT project_segment.segment_name,service_type.service_name, service_kpi.* FROM service_kpi
+                `SELECT project_segment.segment_name,project_service.service_name, service_kpi.* FROM service_kpi
 INNER JOIN project_segment ON project_segment.segment_id=service_kpi.segment_id
-INNER JOIN service_type ON service_type.service_type_id = service_kpi.service_implementation_id
+INNER JOIN segment_implemetation_service ON segment_implemetation_service.implementation_service_id = service_kpi.service_implementation_id
+INNER JOIN project_service ON  project_service.project_service_id = segment_implemetation_service.service_type
 WHERE service_kpi.segment_id=?`,
                 [segment_id],
                 (error, results, fields) =>{
@@ -74,7 +75,8 @@ WHERE service_kpi.segment_id=?`,
             pool.query(
                 `SELECT project_segment.segment_name,project_service.service_name, service_kpi.* FROM service_kpi
 INNER JOIN project_segment ON project_segment.segment_id=service_kpi.segment_id
-INNER JOIN project_service ON project_service.segment_service_id = service_kpi.service_implementation_id
+INNER JOIN segment_implemetation_service ON segment_implemetation_service.implementation_service_id = service_kpi.service_implementation_id
+INNER JOIN project_service ON  project_service.project_service_id = segment_implemetation_service.service_type
 WHERE service_kpi.service_kpi_id=?`, [service_kpi_id],
                 (error, results, fields) => {
                     if (error) {

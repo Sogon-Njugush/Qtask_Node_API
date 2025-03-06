@@ -14,7 +14,7 @@ if (isset($_GET['ticket_id'])) {
                     ticket.*,
                     service_category.*,
                     service_type.*,
-                    IF(service_category.photo_required = 'true', 'true', 'false') AS photo_status
+                    IF(service_category.photo_required = '1' OR service_category.photo_required = 'on', 'true', 'false') AS photo_status
                 FROM service_category
                 INNER JOIN service_type ON service_type.service_type_id = service_category.service_category_type_id
                 INNER JOIN ticket ON ticket.ticket_service_type_id = service_type.service_type_id

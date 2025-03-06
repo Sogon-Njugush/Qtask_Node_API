@@ -48,8 +48,7 @@ if (isset($_GET['user_id']) && isset($_GET['status'])) {
                 AND ticket_assign.agent_id = ?
                 AND ticket_assign.reassign_status = ''
             ORDER BY
-                ticket.ticket_create_time
-        ";
+                ticket.ticket_create_time DESC";
 
         // Using prepared statements for secure queries
         $stmt = $conn->prepare($sql);

@@ -1,5 +1,6 @@
 const {getCounts, getMaterialChangeRequest, getMaterialUsage, getServiceChangeRequest, getWorkLoad,uploadClosureDocuments,
-    getServiceProgress, getSegmentUpdate, getMaterialChangeRequestList, getServiceChangeRequestList, getIncidentReport, getUploadedDocument, approveSegment} = require('./segment_service');
+    getServiceProgress, getSegmentUpdate, getMaterialChangeRequestList, getServiceChangeRequestList, getIncidentReport,
+    getUploadedDocument, approveSegment,uploadSegmentDocuments,getSegmentDocuments,getSegmentMap} = require('./segment_service');
 require('dotenv').config();
 
 
@@ -172,17 +173,104 @@ module.exports = {
             next(e)
         }
     },
-    //upload closure documents
-    uploadClosureDocuments: async (req, res, next)=>{
+    // upload closure documents
+    uploadClosureDocuments: async (req, res, next) => {
+        try {
+            const data = req.body; // data from the request body
+            const files = req.files; // assuming multiple files upload
+
+            // Check if files are uploaded
+            if (!files || files.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No files uploaded",
+                });
+            }
+
+            // Extract file information (e.g., file paths)
+            const uploadedFiles = files.map(file => file.filename); // array of file names/paths
+
+            // Here you can save the file details (e.g., paths) to your database along with other data
+            const result = await uploadClosureDocuments({
+                ...data,          // spread other form data
+                uploadedFiles     // include uploaded file names/paths in the data object
+            });
+
+            return res.json({
+                success: true,
+                data: result,
+            });
+        } catch (e) {
+            next(e);
+        }
+    },
+// upload segment documents
+    uploadSegmentDocuments: async (req, res, next) => {
+        try {
+            const data = req.body; // data from the request body
+            const files = req.files; // assuming multiple files upload
+
+            // Check if files are uploaded
+            if (!files || files.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "No files uploaded",
+                });
+            }
+
+            // Extract file information (e.g., file paths)
+            const uploadedFiles = files.map(file => file.filename); // array of file names/paths
+
+            // Here you can save the file details (e.g., paths) to your database along with other data
+            const result = await uploadSegmentDocuments({
+                ...data,          // spread other form data
+                uploadedFiles     // include uploaded file names/paths in the data object
+            });
+
+            return res.json({
+                success: true,
+                data: result,
+            });
+        } catch (e) {
+            next(e);
+        }
+    },
+    //get segment file
+    getSegmentDocuments: async (req, res, next)=>{
         try{
-            const data = req.body;
-            const result = await uploadClosureDocuments(data);
+            const data = req.query.segment_id;
+            const result = await getSegmentDocuments(data);
             return res.json({
                 success:true,
                 data: result,
             });
         }catch (e) {
             next(e)
+        }
+    },
+    // segment map
+    getSegmentMap: async (req, res, next) => {
+        try {
+            const { segment_id, select_status, start_date, end_date } = req.query; // Extract query parameters
+
+            // Validate segment_id
+            if (!segment_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Segment ID is required',
+                });
+            }
+
+            // Call the service function
+            const result = await getSegmentMap(segment_id, select_status, start_date, end_date);
+
+            // Return the response
+            return res.json({
+                success: true,
+                data: result,
+            });
+        } catch (e) {
+            next(e); // Pass errors to the error-handling middleware
         }
     },
 

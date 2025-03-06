@@ -88,7 +88,7 @@ GROUP BY
 FROM 
     segment_implemetation_service sis
 JOIN 
-    service_type st ON st.service_type_id = sis.service_type
+    project_service st ON st.project_service_id = sis.service_type
 LEFT JOIN 
     project_job_card pjc ON pjc.service_id = sis.service_type
 LEFT JOIN 
@@ -122,7 +122,7 @@ FROM
 JOIN 
     project_segment ps ON ps.segment_id = sis.segment_id
 JOIN 
-    service_type st ON st.service_type_id = sis.service_type
+    project_service st ON st.project_service_id = sis.service_type
 WHERE 
     ps.project_id = ?
 GROUP BY 
@@ -150,9 +150,9 @@ GROUP BY
         ELSE (IFNULL(SUM(pjc.service_quantity), 0) / IFNULL(SUM(sis.quantity), 1)) * 100
     END AS percentage_progress
 FROM 
-    service_type st
+    project_service st
 JOIN 
-    segment_implemetation_service sis ON st.service_type_id = sis.service_type
+    segment_implemetation_service sis ON st.project_service_id = sis.service_type
 JOIN 
     project_segment ps ON ps.segment_id = sis.segment_id
 LEFT JOIN 
@@ -161,7 +161,7 @@ LEFT JOIN
 WHERE 
     ps.project_id = ?
 GROUP BY 
-    st.service_type_id`,[segment_id],
+    st.project_service_id`,[segment_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);
@@ -208,7 +208,7 @@ GROUP BY
 FROM project_job_card pj
 INNER JOIN Users u ON u.user_id = pj.user_id
 INNER JOIN project_assign_user pau ON pau.segment_assign_id = pj.segment_id
-INNER JOIN service_type st ON st.service_type_id = pj.service_id
+INNER JOIN project_service st ON st.project_service_id = pj.service_id
 WHERE pau.segment_id = ?
 ORDER BY pj.project_job_card_id DESC`,[segment_id],
                 (error, results, fields) =>{
@@ -256,7 +256,7 @@ WHERE smcr.segment_id = ?`,[segment_id],
 FROM 
     segment_service_change_request sscr
 INNER JOIN 
-    service_type st ON st.service_type_id = sscr.service_id
+    project_service st ON st.project_service_id = sscr.service_id
 INNER JOIN 
     Users u ON u.user_id = sscr.service_change_requested_by
 WHERE 
@@ -295,7 +295,7 @@ ORDER BY
             );
         });
     },
-//uploaded documents
+//uploaded documents from site
     getUploadedDocument: (segment_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
@@ -413,62 +413,103 @@ ORDER BY
 //upload closer documents
     uploadClosureDocuments: (data) => {
         const dateTime = new Date();
-        const uploadFolder = path.join(__dirname, '../../upload/images/');
-
         return new Promise((resolve, reject) => {
-            // Validate if data.files exists and is an array
-            if (!Array.isArray(data.files)) {
-                return reject(new Error('Files array is missing or not an array'));
-            }
+            const uploadedFileName = data.uploadedFiles && data.uploadedFiles.length > 0
+                ? data.uploadedFiles.join(', ') // Join file names if multiple files are uploaded
+                : ""; // Handle case where no files are uploaded
 
-            const uploadResults = []; // Array to store upload results or errors
-
-            data.files.forEach(async (file) => {
-                // Validate each file object
-                if (!file || typeof file.name !== 'string') {
-                    uploadResults.push(new Error('Invalid file object in files array'));
-                    return;
-                }
-
-                // Generate a unique filename
-                const timestamp = Date.now();
-                const uniqueFileName = `${timestamp}-${file.name}`;
-                const destinationPath = path.join(uploadFolder, uniqueFileName);
-
-                // Move the file
-                try {
-                    await fs.promises.rename(file.path, destinationPath);
-                } catch (err) {
-                    uploadResults.push(err);
-                    return;
-                }
-
-                // Insert file details into the database
-                const query = `
-        INSERT INTO segment_closure_documents 
-        (segment_closure_segment_id, closure_document_name, closure_file, closure_file_status, closure_file_uploaded_by)
-        VALUES (?,?,?,?,?)`;
-                const values = [data.segment_id, data.title, uniqueFileName, "Active", data.user_id];
-
-                pool.query(query, values, (error) => {
+            pool.query(
+                `INSERT INTO segment_closure_documents 
+            (segment_closure_segment_id, closure_document_name, closure_file, closure_file_status, closure_file_uploaded_by)
+            VALUES (?,?,?,?,?)`,
+                [data.segment_id, data.title, uploadedFileName, "Active", data.user_id],
+                (error, results, fields) => {
                     if (error) {
-                        uploadResults.push(error);
+                        return reject(error);
                     }
-                });
-            });
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //upload segment documents
+    uploadSegmentDocuments: (data) => {
+        const dateTime = new Date();
+        return new Promise((resolve, reject) => {
+            const uploadedFileName = data.uploadedFiles && data.uploadedFiles.length > 0
+                ? data.uploadedFiles.join(', ') // Join file names if multiple files are uploaded
+                : ""; // Handle case where no files are uploaded
 
-            // Wait for all file uploads and database insertions to complete
-            Promise.all(uploadResults)
-                .then(() => {
-                    // Check for any errors in the uploadResults array
-                    if (uploadResults.length > 0) {
-                        return reject(new Error('Errors occurred during file uploads or database insertions'));
+            pool.query(
+                `INSERT INTO segment_documents 
+            (segment_id, segment_document_title, segment_document_file, segment_documents_status, segment_document_user_id)
+            VALUES (?,?,?,?,?)`,
+                [data.segment_id, data.title, uploadedFileName, "Active", data.user_id],
+                (error, results, fields) => {
+                    if (error) {
+                        return reject(error);
                     }
-                    resolve({ message: 'Files uploaded successfully' });
-                })
-                .catch(reject);
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //get segment file
+    getSegmentDocuments: (segment_id)=>{
+        return new Promise((resolve,reject) => {
+            pool.query(
+                `SELECT 
+    COALESCE(sd.segment_document_title, pd.document_name) AS file_title,
+    COALESCE(sd.segment_document_file, pd.document_file) AS file_name
+    FROM 
+    project_document pd
+   INNER JOIN 
+    project_segment ps ON pd.project_id = ps.project_id
+    LEFT JOIN 
+    segment_documents sd ON sd.segment_id = ps.segment_id 
+    WHERE ps.segment_id = ?`,[segment_id],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //get segment map location
+    getSegmentMap: (segment_id, select_status = 'All', start_date = null, end_date = null) => {
+        return new Promise((resolve, reject) => {
+            // Base query
+            const query = `
+                SELECT SUBSTRING_INDEX(pjc.coordinates, ',', 1) AS lat,SUBSTRING_INDEX(pjc.coordinates, ',', -1) AS lon,pjc.image,pjc.title,
+                pjc.job_type,ps.service_name,pseg.segment_name,u.user_firstname, u.user_lastname,
+                pjc.date_created AS activity_date,pjc.comment AS user_comment FROM project_job_card pjc
+                INNER JOIN 
+                    segment_implemetation_service sis ON sis.implementation_service_id = pjc.service_id
+                INNER JOIN 
+                    project_service ps ON ps.project_service_id = sis.service_type
+                INNER JOIN 
+                    project_segment pseg ON pseg.segment_id = pjc.segment_id
+                INNER JOIN 
+                    Users u ON pjc.user_id = u.user_id
+                WHERE 
+                    pseg.segment_id = ?
+                    AND (? = 'All' OR DATE(pjc.date_created) BETWEEN ? AND ?)`;
+
+            // Parameters array
+            const params = [segment_id, select_status, start_date, end_date];
+
+            // Execute the query
+            pool.query(query, params, (error, results, fields) => {
+                if (error) {
+                    return reject(error);
+                }
+                return resolve(results);
+            });
         });
     },
 //end
+
 
 };

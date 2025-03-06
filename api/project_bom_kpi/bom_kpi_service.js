@@ -54,8 +54,9 @@ module.exports = {
     getBomKpis: (segment_id) => {
         return new Promise((resolve, reject)=>{
             pool.query(
-                `SELECT project_segment.segment_name, material_kpi.* FROM  material_kpi
+                `SELECT project_segment.segment_name, material_kpi.*, segment_bom_material.material_id AS itemCode FROM  material_kpi
 INNER JOIN project_segment ON project_segment.segment_id=material_kpi.segment_id
+INNER JOIN segment_bom_material ON segment_bom_material.bom_material_id=material_kpi.bom_material_id 
 WHERE material_kpi.segment_id=?`,
                 [segment_id],
                 (error, results, fields) =>{
@@ -71,8 +72,9 @@ WHERE material_kpi.segment_id=?`,
     getBomKpi: (material_kpi_id) => {
         return new Promise((resolve, reject)=> {
             pool.query(
-                `SELECT project_segment.segment_name,material_kpi.* FROM material_kpi
+                `SELECT project_segment.segment_name,material_kpi.*,segment_bom_material.material_id AS itemCode FROM material_kpi
 INNER JOIN project_segment ON project_segment.segment_id=material_kpi.segment_id
+INNER JOIN segment_bom_material ON segment_bom_material.bom_material_id=material_kpi.bom_material_id
 WHERE material_kpi.material_kpi_id=?`, [material_kpi_id],
                 (error, results, fields) => {
                     if (error) {

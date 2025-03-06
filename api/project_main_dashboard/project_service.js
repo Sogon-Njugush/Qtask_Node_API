@@ -55,7 +55,7 @@ LEFT JOIN
             jc.segment_id,
             SUM(jc.service_quantity) AS total_service_quantity
         FROM 
-            job_card jc
+            project_job_card jc
         GROUP BY 
             jc.segment_id
     ) jc ON ps.segment_id = jc.segment_id
@@ -157,7 +157,7 @@ LEFT JOIN
             jc.segment_id,
             SUM(jc.service_quantity) AS total_service_quantity
         FROM 
-            job_card jc
+            project_job_card jc
         GROUP BY 
             jc.segment_id
     ) jc ON ps.segment_id = jc.segment_id

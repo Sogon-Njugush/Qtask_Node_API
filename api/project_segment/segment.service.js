@@ -75,25 +75,48 @@ module.exports = {
     getSegments:  (project_id) => {
         return new Promise((resolve, reject)=>{
             pool.query(
-                `SELECT DISTINCT project.project_name,customer.customer_name,project_segment.*,CASE 
+                `SELECT DISTINCT 
+    project.project_name,
+    customer.customer_name,
+    project_segment.*,
+    CASE 
         WHEN pau.segment_id IS NOT NULL THEN 'Assigned'
         ELSE 'Pending'
     END AS assignment_status,
-     COALESCE(avg_scp.avg_completion_percentage, 0) AS percentage_progress
- FROM project_segment
-INNER JOIN project ON project.project_id=project_segment.project_id
-INNER JOIN customer ON customer.customer_id = project.project_customer_id
-LEFT JOIN project_assign_user pau ON pau.segment_id = project_segment.segment_id
+    GROUP_CONCAT(CONCAT(Users.user_firstname, ' ', Users.user_lastname) SEPARATOR ', ') AS assigned_users,
+    ROUND((IFNULL(executed.total_executed, 0) / IFNULL(total_planned.total_quantity, 1)) * 100, 2) AS percentage_progress
+FROM 
+    project_segment
+INNER JOIN 
+    project ON project.project_id = project_segment.project_id
+INNER JOIN 
+    customer ON customer.customer_id = project.project_customer_id
+LEFT JOIN 
+    project_assign_user pau ON pau.segment_id = project_segment.segment_id
+LEFT JOIN 
+    Users ON Users.user_id = pau.user_id
 LEFT JOIN (
     SELECT 
         segment_id, 
-        AVG(completion_percentage) AS avg_completion_percentage
+        SUM(quantity) AS total_quantity
     FROM 
-        service_completion_percentage
+        segment_implemetation_service
     GROUP BY 
         segment_id
-) avg_scp ON avg_scp.segment_id = project_segment.segment_id
-WHERE project.project_id=?`,
+) total_planned ON total_planned.segment_id = project_segment.segment_id
+LEFT JOIN (
+    SELECT 
+        segment_id, 
+        SUM(service_quantity) AS total_executed
+    FROM 
+        project_job_card
+    GROUP BY 
+        segment_id
+) executed ON executed.segment_id = project_segment.segment_id
+WHERE 
+    project.project_id = ?
+    GROUP BY 
+    project.project_name, customer.customer_name, project_segment.segment_id;`,
                 [project_id],
                 (error, results, fields) =>{
                     if(error){
@@ -113,20 +136,32 @@ WHERE project.project_id=?`,
         WHEN pau.segment_id IS NOT NULL THEN 'Assigned'
         ELSE 'Pending'
     END AS assignment_status,
-    COALESCE(avg_scp.avg_completion_percentage, 0) AS percentage_progress
+    COALESCE(avg_scp.avg_completion_percentage, 0) AS percentage_progress,
+    GROUP_CONCAT(CONCAT(Users.user_firstname, ' ', Users.user_lastname) SEPARATOR ', ') AS assigned_users,
+    ROUND((IFNULL(executed.total_executed, 0) / IFNULL(total_planned.total_quantity, 1)) * 100, 2) AS percentage_progress
  FROM project_segment
 INNER JOIN project ON project.project_id=project_segment.project_id
 INNER JOIN customer ON customer.customer_id = project.project_customer_id
 LEFT JOIN project_assign_user pau ON pau.segment_id = project_segment.segment_id
+LEFT JOIN Users ON Users.user_id = pau.user_id
 LEFT JOIN (
     SELECT 
         segment_id, 
-        AVG(completion_percentage) AS avg_completion_percentage
+        SUM(quantity) AS total_quantity
     FROM 
-        service_completion_percentage
+        segment_implemetation_service
     GROUP BY 
         segment_id
-) avg_scp ON avg_scp.segment_id = project_segment.segment_id
+) total_planned ON total_planned.segment_id = project_segment.segment_id
+LEFT JOIN (
+    SELECT 
+        segment_id, 
+        SUM(service_quantity) AS total_executed
+    FROM 
+        project_job_card
+    GROUP BY 
+        segment_id
+) executed ON executed.segment_id = project_segment.segment_id
 WHERE project_segment.segment_id=?`, [segment_id],
                 (error, results, fields) => {
                     if (error) {
@@ -168,5 +203,5 @@ WHERE project_segment.segment_id=?`, [segment_id],
             );
         });
     },
-    //end
+   //end
 };

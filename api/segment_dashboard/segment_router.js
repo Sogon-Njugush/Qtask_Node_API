@@ -1,5 +1,6 @@
 const {getServiceChangeRequest,getSegmentBudget,getMaterialUsage, getServiceProgress,getCounts, getMaterialChangeRequest,getSegmentUpdate,
     getMaterialChangeRequestList,getServiceChangeRequestList,getIncidentReport, getUploadedDocument,approveSegment,uploadClosureDocuments,
+    uploadSegmentDocuments,getSegmentDocuments,getSegmentMap,
     uploadTest
 } = require('./segment_controller');
 const router = require('express').Router();
@@ -8,7 +9,21 @@ const router = require('express').Router();
 const { checkToken} = require("../../authentication/tokenValidation");
 //get validation
 // const {addUserValidation} = require('../../validation/users/user.validation');
+const multer = require("multer");
+const path = require("path");
 
+// Configure Multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Ensure this directory exists
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 // get dashboard counts
 router.get("/newChangeRequest", checkToken,getCounts);
@@ -46,6 +61,12 @@ router.get("/uploadedDocuments", checkToken, getUploadedDocument);
 //approve segment closure
 router.post("/closeSegment", checkToken, approveSegment);
 //upload closure document
-router.post("/closureUploads", checkToken,uploadClosureDocuments);
+router.post("/closureUploads", checkToken,upload.array('files[]'),uploadClosureDocuments);
+//upload segment document
+router.post("/segmentUploads", checkToken,upload.array('files[]'),uploadSegmentDocuments);
+//get segment file
+router.get("/getSegmentDocuments", checkToken, getSegmentDocuments);
+//get segment map
+router.get("/getSegmentMap", checkToken, getSegmentMap);
 
 module.exports = router;

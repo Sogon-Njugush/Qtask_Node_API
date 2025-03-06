@@ -1,4 +1,4 @@
-const {createBom,deleteBom,getBom, getBoms,updateBom} = require('./bom.controller');
+const {createBom,deleteBom,getBom, getBoms,updateBom,approveMaterialChangeRequest,getMaterialByItemCode,getAllMaterials,createWarehouse} = require('./bom.controller');
 const router = require('express').Router();
 
 //validate token
@@ -21,5 +21,14 @@ router.patch("/",checkToken, updateBom);
 
 //delete project_bom
 router.delete("/",checkToken, deleteBom);
+//approved material change request
+router.post("/approveMaterialChangeRequest", checkToken, approveMaterialChangeRequest);
+//get all material details from warehouse
+router.post("/getMaterialByItemCode", checkToken, getMaterialByItemCode);
+//get all materials from warehouse
+router.post("/getAllMaterials", checkToken, getAllMaterials);
+//create a virtual warehouse
+router.post("/createWarehouse", checkToken, createWarehouse);
+
 
 module.exports = router;

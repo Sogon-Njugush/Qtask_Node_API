@@ -43,7 +43,7 @@ FROM
 LEFT JOIN 
     segment_implemetation_service sis ON ps.segment_id = sis.segment_id
 LEFT JOIN 
-    job_card jc ON ps.segment_id = jc.segment_id
+    project_job_card jc ON ps.segment_id = jc.segment_id
 WHERE 
     ps.project_id = ?
 GROUP BY 
@@ -122,7 +122,7 @@ FROM
 JOIN 
     project_segment ps ON ps.segment_id = sis.segment_id
 JOIN 
-    service_type st ON st.service_type_id = sis.service_type
+    project_service st ON st.project_service_id = sis.service_type
 WHERE 
     ps.project_id = ?
 GROUP BY 

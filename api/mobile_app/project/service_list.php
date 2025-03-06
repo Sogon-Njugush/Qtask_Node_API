@@ -20,7 +20,7 @@ try {
             pau.segment_id,
             pau.date_assigned
         FROM segment_implemetation_service sis
-        INNER JOIN service_type st ON st.service_type_id = sis.service_type
+        INNER JOIN project_service st ON st.project_service_id = sis.service_type
         INNER JOIN project_assign_user pau ON pau.segment_id = sis.segment_id
         WHERE pau.segment_assign_id = ?
         ORDER BY pau.segment_assign_id DESC

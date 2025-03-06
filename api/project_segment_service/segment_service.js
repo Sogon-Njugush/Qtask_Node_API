@@ -70,7 +70,7 @@ FROM
 INNER JOIN 
     project_service 
 ON 
-    segment_implemetation_service.service_type = project_service.segment_service_id
+    segment_implemetation_service.service_type = project_service.project_service_id
 WHERE 
     segment_implemetation_service.segment_id = ?`,
                 [segment_id],
@@ -88,7 +88,7 @@ WHERE
         return new Promise((resolve, reject)=> {
             pool.query(
                 `SELECT project_service.service_name,segment_implemetation_service.* FROM segment_implemetation_service
-INNER JOIN project_service ON segment_implemetation_service.service_type=project_service.segment_service_id
+INNER JOIN project_service ON segment_implemetation_service.service_type=project_service.project_service_id
 WHERE segment_implemetation_service.implementation_service_id=?`, [implementation_service_id],
                 (error, results, fields) => {
                     if (error) {

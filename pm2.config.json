@@ -1,0 +1,8 @@
+{
+  "name": "qtask",
+  "script": "app.js",
+  "watch": true,
+  "watch_dir": ["api"],
+  "ignore_watch": ["upload/**/*", "**/*.log"],
+  "restart_delay": 4000
+}

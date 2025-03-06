@@ -22,7 +22,7 @@ module.exports = {
                     VALUES ?`;
 
                     const values = materials.map(data => [
-                        data.segment_id, data.material_id, data.material_quantity,data.unit_cost,dateTime,data.user_id,data.material_status
+                        data.segment_id, data.material_id, data.material_quantity,'',dateTime,data.user_id,data.material_status
                     ]);
 
                     connection.query(query, [values], (error, results, fields) => {

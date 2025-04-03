@@ -116,7 +116,7 @@ LEFT JOIN (
 WHERE 
     project.project_id = ?
     GROUP BY 
-    project.project_name, customer.customer_name, project_segment.segment_id;`,
+    project.project_name, customer.customer_name, project_segment.segment_id`,
                 [project_id],
                 (error, results, fields) =>{
                     if(error){
@@ -177,9 +177,9 @@ WHERE project_segment.segment_id=?`, [segment_id],
     updateSegment: (data) =>{
         return new Promise((resolve, reject)=>{
             pool.query(
-                `UPDATE project_segment SET segment_name=?,start_point=?,end_point=?,est_distance=?,site_number=?,overlap=?,comment=?,user_id=?,sub_contractor=?,start_date=?,end_date=?,segment_status=? WHERE segment_id = ?`,
+                `UPDATE project_segment SET segment_name=?,start_point=?,end_point=?,est_distance=?,site_number=?,overlap=?,comment=?,sub_contractor=?,start_date=?,end_date=? WHERE segment_id = ?`,
                 [data.segment_name,data.start_point,data.end_point,data.est_distance,data.site,data.overlap,
-                    data.comment, data.user_id, data.sub_contractor, data.start_date, data.end_date,data.segment_status,data.segment_id],
+                    data.comment, data.sub_contractor, data.start_date, data.end_date,data.segment_id],
                 (error, results,fields)=>{
                     if(error){
                         return reject(error);

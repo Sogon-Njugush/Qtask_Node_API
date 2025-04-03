@@ -1,5 +1,6 @@
 const { createBudgetItem, getBudgetItem, getBudgetItems, updateBudgetItem, deleteBudgetItem,createSegmentBudget,
-    deleteSegmentBudget,updateSegmentBudget,getSegmentBudgetById,getSegmentBudgets,getSegmentExpenditure,updateSegmentActualBudget } = require('./budgetItem.service');
+    deleteSegmentBudget,updateSegmentBudget,getSegmentBudgetById,getSegmentBudgets,getSegmentExpenditure,updateSegmentActualBudget,
+    getProjectExpenditure } = require('./budgetItem.service');
 require('dotenv').config();
 const AppError = require("../../util/appError");
 
@@ -188,6 +189,23 @@ module.exports = {
             const baseUrl = req.query.baseUrl; // Assuming baseUrl is passed in the request
 
             const results = await getSegmentExpenditure(segment_id, token, baseUrl);
+
+            return res.status(200).json({
+                success: true,
+                data: results
+            });
+        } catch (e) {
+            next(e);
+        }
+    },
+    //get project budget expenditure
+    getProjectExpenditure: async (req, res, next) => {
+        try {
+            const project_id = req.query.project_id;
+            const token = req.query.token; // Assuming token is passed in the request
+            const baseUrl = req.query.baseUrl; // Assuming baseUrl is passed in the request
+
+            const results = await getProjectExpenditure(project_id, token, baseUrl);
 
             return res.status(200).json({
                 success: true,

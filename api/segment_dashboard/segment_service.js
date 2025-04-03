@@ -23,7 +23,8 @@ module.exports = {
     ) AS percentage_progress
 FROM project_material_dispense pmd
 LEFT JOIN segment_bom_material sbm ON sbm.segment_id = pmd.segment_id
-LEFT JOIN project_job_card pjc ON pjc.segment_id = pmd.segment_id
+LEFT JOIN project_assign_user pau ON pau.segment_id = pmd.segment_id
+LEFT JOIN project_job_card pjc ON pjc.segment_id = pau.segment_assign_id
 LEFT JOIN segment_implemetation_service sis ON sis.segment_id = pmd.segment_id
 LEFT JOIN segment_service_change_request sscr ON sscr.segment_id = pmd.segment_id 
     AND LOWER(sscr.service_change_status) = 'approved'
@@ -90,9 +91,9 @@ FROM
 JOIN 
     project_service st ON st.project_service_id = sis.service_type
 LEFT JOIN 
-    project_job_card pjc ON pjc.service_id = sis.service_type
+    project_job_card pjc ON pjc.service_id = sis.implementation_service_id
 LEFT JOIN 
-    segment_service_change_request sscr ON sscr.segment_id = pjc.segment_id 
+    segment_service_change_request sscr ON sscr.segment_id = sis.segment_id 
     AND sscr.service_id = sis.service_type 
     AND LOWER(sscr.service_change_status) = 'approved'
 WHERE 
@@ -208,7 +209,8 @@ GROUP BY
 FROM project_job_card pj
 INNER JOIN Users u ON u.user_id = pj.user_id
 INNER JOIN project_assign_user pau ON pau.segment_assign_id = pj.segment_id
-INNER JOIN project_service st ON st.project_service_id = pj.service_id
+INNER JOIN segment_implemetation_service sis ON sis.implementation_service_id =pj.service_id
+INNER JOIN project_service st ON st.project_service_id = sis.service_type
 WHERE pau.segment_id = ?
 ORDER BY pj.project_job_card_id DESC`,[segment_id],
                 (error, results, fields) =>{

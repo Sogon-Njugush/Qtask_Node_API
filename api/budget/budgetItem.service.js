@@ -322,77 +322,107 @@ module.exports = {
                 // Fetch initial segment budget data
                 pool.query(
                     `SELECT 
-                    sb.*,
-                    COALESCE(
-                        NULLIF(
-                            CASE
-                                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
-                                WHEN sb.budget_item_type = 'Labour' THEN NULL
-                                ELSE NULL
-                            END, 0
-                        ), sb.budget_item_count
-                    ) AS item_count,
-                    CASE
-                        WHEN sb.budget_item_type = 'Material' THEN sbm.material_id
-                        WHEN sb.budget_item_type = 'Labour' THEN bi.budget_item_name
-                        ELSE NULL
-                    END AS item_name,
-                    (COALESCE(
-                        NULLIF(
-                            CASE
-                                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
-                                WHEN sb.budget_item_type = 'Labour' THEN NULL
-                                ELSE NULL
-                            END, 0
-                        ), sb.budget_item_count
-                    ) * sb.budget_item_amount) AS estimated_cost,
-                    CASE
-                        WHEN sb.budget_item_type = 'Material' THEN 
-                            COALESCE(
-                                (SELECT SUM(pmd.material_quantity) 
-                                 FROM project_material_dispense pmd
-                                 WHERE pmd.segment_id = sb.segment_id
-                                   AND pmd.material_id = sbm.bom_material_id
-                                ), 0
-                            )
-                        WHEN sb.budget_item_type = 'Labour' THEN 
-                            COALESCE(
-                                (SELECT SUM(dbi.dispensed_item_quantity) 
-                                 FROM dispensed_budget_item dbi
-                                 WHERE dbi.segment_budget_id = sb.segment_budget_id
-                                ), 0
-                            )
-                        ELSE 0
-                    END AS total_used_items,
-                    CASE
-                        WHEN sb.budget_item_type = 'Material' THEN 
-                            COALESCE(
-                                (SELECT SUM(pmd.material_quantity) 
-                                 FROM project_material_dispense pmd
-                                 WHERE pmd.segment_id = sb.segment_id
-                                   AND pmd.material_id = sbm.bom_material_id
-                                ) * sb.budget_item_amount, 0
-                            )
-                        WHEN sb.budget_item_type = 'Labour' THEN 
-                            COALESCE(
-                                (SELECT SUM(dbi.dispensed_item_quantity) 
-                                 FROM dispensed_budget_item dbi
-                                 WHERE dbi.segment_budget_id = sb.segment_budget_id
-                                ) * sb.budget_item_amount, 0
-                            )
-                        ELSE 0
-                    END AS total_amount_spent
-                FROM 
-                    segment_budget sb
-                LEFT JOIN 
-                    segment_bom_material sbm ON sb.budget_item_id = sbm.bom_material_id AND sb.budget_item_type = 'Material'
-                LEFT JOIN 
-                    budget_item bi ON sb.budget_item_id = bi.budget_item_id AND sb.budget_item_type = 'Labour'
-                WHERE 
-                    sb.segment_id = ?
-                    AND sb.budget_item_status = 'Active'
-                GROUP BY 
-                    item_name`,
+    sb.*,
+    COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) AS item_count,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN sbm.material_id
+        WHEN sb.budget_item_type = 'Labour' THEN bi.budget_item_name
+        ELSE NULL
+    END AS item_name,
+    (COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) * sb.budget_item_amount) AS estimated_cost,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN 
+            COALESCE(
+                (SELECT SUM(pmd.material_quantity) 
+                 FROM project_material_dispense pmd
+                 WHERE pmd.segment_id = sb.segment_id
+                   AND pmd.material_id = sbm.bom_material_id
+                ), 0
+            )
+        WHEN sb.budget_item_type = 'Labour' THEN 
+            COALESCE(
+                (SELECT SUM(dbi.dispensed_item_quantity) 
+                 FROM dispensed_budget_item dbi
+                 WHERE dbi.segment_budget_id = sb.segment_budget_id
+                ), 0
+            )
+        ELSE 0
+    END AS total_used_items,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN 
+            COALESCE(
+                (SELECT SUM(pmd.material_quantity) 
+                 FROM project_material_dispense pmd
+                 WHERE pmd.segment_id = sb.segment_id
+                   AND pmd.material_id = sbm.bom_material_id
+                ) * sb.budget_item_amount, 0
+            )
+        WHEN sb.budget_item_type = 'Labour' THEN 
+            COALESCE(
+                (SELECT SUM(dbi.dispensed_item_quantity) 
+                 FROM dispensed_budget_item dbi
+                 WHERE dbi.segment_budget_id = sb.segment_budget_id
+                ) * sb.budget_item_amount, 0
+            )
+        ELSE 0
+    END AS total_amount_spent,
+    SUM((COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) * sb.budget_item_amount)) OVER () AS sum_estimated_cost,
+    SUM(
+        CASE
+            WHEN sb.budget_item_type = 'Material' THEN 
+                COALESCE(
+                    (SELECT SUM(pmd.material_quantity) 
+                     FROM project_material_dispense pmd
+                     WHERE pmd.segment_id = sb.segment_id
+                       AND pmd.material_id = sbm.bom_material_id
+                    ) * sb.budget_item_amount, 0
+                )
+            WHEN sb.budget_item_type = 'Labour' THEN 
+                COALESCE(
+                    (SELECT SUM(dbi.dispensed_item_quantity) 
+                     FROM dispensed_budget_item dbi
+                     WHERE dbi.segment_budget_id = sb.segment_budget_id
+                    ) * sb.budget_item_amount, 0
+                )
+            ELSE 0
+        END
+    ) OVER () AS sum_total_amount_spent,
+    SUM(sb.budget_actual_amount) OVER () AS sum_budget_actual_amount
+FROM 
+    segment_budget sb
+LEFT JOIN 
+    segment_bom_material sbm ON sb.budget_item_id = sbm.bom_material_id AND sb.budget_item_type = 'Material'
+LEFT JOIN 
+    budget_item bi ON sb.budget_item_id = bi.budget_item_id AND sb.budget_item_type = 'Labour'
+WHERE 
+    sb.segment_id = ?
+    AND sb.budget_item_status = 'Active'
+GROUP BY 
+    item_name`,
                     [segment_id],
                     async (error, results, fields) => {
                         if (error) {
@@ -436,5 +466,159 @@ module.exports = {
             }
         });
     },
-    //budget report
+    //project budget report
+    getProjectExpenditure: (project_id) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                // Fetch initial segment budget data
+                pool.query(
+                    `SELECT 
+    sb.*,
+    COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) AS item_count,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN sbm.material_id
+        WHEN sb.budget_item_type = 'Labour' THEN bi.budget_item_name
+        ELSE NULL
+    END AS item_name,
+    (COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) * sb.budget_item_amount) AS estimated_cost,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN 
+            COALESCE(
+                (SELECT SUM(pmd.material_quantity) 
+                 FROM project_material_dispense pmd
+                 WHERE pmd.segment_id = sb.segment_id
+                   AND pmd.material_id = sbm.bom_material_id
+                ), 0
+            )
+        WHEN sb.budget_item_type = 'Labour' THEN 
+            COALESCE(
+                (SELECT SUM(dbi.dispensed_item_quantity) 
+                 FROM dispensed_budget_item dbi
+                 WHERE dbi.segment_budget_id = sb.segment_budget_id
+                ), 0
+            )
+        ELSE 0
+    END AS total_used_items,
+    CASE
+        WHEN sb.budget_item_type = 'Material' THEN 
+            COALESCE(
+                (SELECT SUM(pmd.material_quantity) 
+                 FROM project_material_dispense pmd
+                 WHERE pmd.segment_id = sb.segment_id
+                   AND pmd.material_id = sbm.bom_material_id
+                ) * sb.budget_item_amount, 0
+            )
+        WHEN sb.budget_item_type = 'Labour' THEN 
+            COALESCE(
+                (SELECT SUM(dbi.dispensed_item_quantity) 
+                 FROM dispensed_budget_item dbi
+                 WHERE dbi.segment_budget_id = sb.segment_budget_id
+                ) * sb.budget_item_amount, 0
+            )
+        ELSE 0
+    END AS total_amount_spent,
+    SUM((COALESCE(
+        NULLIF(
+            CASE
+                WHEN sb.budget_item_type = 'Material' THEN sbm.material_quantity
+                WHEN sb.budget_item_type = 'Labour' THEN NULL
+                ELSE NULL
+            END, 0
+        ), sb.budget_item_count
+    ) * sb.budget_item_amount)) OVER () AS sum_estimated_cost,
+    SUM(
+        CASE
+            WHEN sb.budget_item_type = 'Material' THEN 
+                COALESCE(
+                    (SELECT SUM(pmd.material_quantity) 
+                     FROM project_material_dispense pmd
+                     WHERE pmd.segment_id = sb.segment_id
+                       AND pmd.material_id = sbm.bom_material_id
+                    ) * sb.budget_item_amount, 0
+                )
+            WHEN sb.budget_item_type = 'Labour' THEN 
+                COALESCE(
+                    (SELECT SUM(dbi.dispensed_item_quantity) 
+                     FROM dispensed_budget_item dbi
+                     WHERE dbi.segment_budget_id = sb.segment_budget_id
+                    ) * sb.budget_item_amount, 0
+                )
+            ELSE 0
+        END
+    ) OVER () AS sum_total_amount_spent,
+    SUM(sb.budget_actual_amount) OVER () AS sum_budget_actual_amount
+FROM 
+    segment_budget sb
+LEFT JOIN 
+    segment_bom_material sbm ON sb.budget_item_id = sbm.bom_material_id AND sb.budget_item_type = 'Material'
+LEFT JOIN 
+    budget_item bi ON sb.budget_item_id = bi.budget_item_id AND sb.budget_item_type = 'Labour'
+INNER JOIN 
+    project_segment ps ON sb.segment_id = ps.segment_id
+WHERE 
+    ps.project_id = ?
+    AND sb.budget_item_status = 'Active'
+GROUP BY 
+    sb.segment_budget_id, sb.budget_item_type, sb.budget_item_id, sb.budget_item_count, sb.budget_item_amount, sb.budget_actual_amount, sbm.material_quantity, sbm.material_id, bi.budget_item_name`,
+                    [project_id],
+                    async (error, results, fields) => {
+                        if (error) {
+                            return reject(error);
+                        }
+
+                        // Loop through results and fetch material details for Material items
+                        for (let item of results) {
+                            if (item.budget_item_type === 'Material') {
+                                try {
+                                    const erpUrl = `${baseUrl}Item?fields=["name","item_code","item_name","stock_uom","standard_rate","valuation_rate"]&filters=[["Item","item_code","=","${encodeURIComponent(item.item_name)}"]]`;
+                                    const erpResponse = await axios.get(erpUrl, {
+                                        headers: {
+                                            'Authorization': `token ${token}`,
+                                        },
+                                    });
+
+                                    if (erpResponse.data && Array.isArray(erpResponse.data.data) && erpResponse.data.data.length > 0) {
+                                        // Add material_name to the result
+                                        item.material_name = erpResponse.data.data[0].item_name;
+                                    } else {
+                                        // If no data is found, set material_name to null or item_name
+                                        item.material_name = null;
+                                    }
+                                } catch (erpError) {
+                                    console.error('Error fetching material details:', erpError.message);
+                                    // If there's an error, set material_name to null
+                                    item.material_name = null;
+                                }
+                            } else {
+                                // For non-Material items, set material_name to null
+                                item.material_name = null;
+                            }
+                        }
+
+                        return resolve(results);
+                    }
+                );
+            } catch (e) {
+                reject(e);
+            }
+        });
+    },
+
+
 };

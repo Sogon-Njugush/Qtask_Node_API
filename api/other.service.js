@@ -47,8 +47,8 @@ module.exports = {
                                 `
                                 SELECT SUM(TIMESTAMPDIFF(MINUTE, start_time, end_time)) AS hold_minutes
                                 FROM (
-                                    SELECT STR_TO_DATE(ticket_hold_time, '%Y-%m-%dT%H:%i:%s') AS start_time,
-                                           STR_TO_DATE(ticket_release_time, '%Y-%m-%dT%H:%i:%s') AS end_time 
+                                    SELECT STR_TO_DATE(ticket_hold_time, '%Y-%m-%d %H:%i:%s') AS start_time,
+                                           STR_TO_DATE(ticket_release_time, '%Y-%m-%d %H:%i:%s') AS end_time 
                                     FROM ticket_hold 
                                     WHERE ticket_id = ?
                                 ) AS hold_times
@@ -172,7 +172,7 @@ module.exports = {
                     if (error) {
                         return reject(error);
                     }
-                    return resolve(results[0] || null);
+                    return resolve(results || null);
                 }
             );
         });
@@ -192,34 +192,58 @@ module.exports = {
                     if (error) {
                         return reject(error);
                     }
-                    return resolve(results[0] || null);
+                    return resolve(results || null);
                 }
             );
         });
     },
-
     // Update a user role relationship
     updateUserRole: (data) => {
         return new Promise((resolve, reject) => {
             pool.query(
-                `UPDATE user_role 
-                 SET role_id = ? 
-                 WHERE user_role_id = ?`,
-                [
-                    data.role_id,
-                    data.user_role_id
-                ],
+                `SELECT user_id FROM user_role WHERE user_role_id = ?`,
+                [data.user_role_id],
                 (error, results) => {
                     if (error) {
                         return reject(error);
                     }
-                    return resolve(results);
+                    if (results.length === 0) {
+                        return reject(new Error("User role entry not found"));
+                    }
+
+                    const user_id = results[0].user_id;
+
+                    // Check if the new (user_id, role_id) combination already exists
+                    pool.query(
+                        `SELECT * FROM user_role WHERE user_id = ? AND role_id = ? AND user_role_id != ?`,
+                        [user_id, data.role_id, data.user_role_id],
+                        (checkError, checkResults) => {
+                            if (checkError) {
+                                return reject(checkError);
+                            }
+                            if (checkResults.length > 0) {
+                                return reject(new Error("Duplicate entry: This user already has this role"));
+                            }
+
+                            // Proceed with the update if no duplicate is found
+                            pool.query(
+                                `UPDATE user_role SET role_id = ? WHERE user_role_id = ?`,
+                                [data.role_id, data.user_role_id],
+                                (updateError, updateResults) => {
+                                    if (updateError) {
+                                        return reject(updateError);
+                                    }
+                                    return resolve(updateResults);
+                                }
+                            );
+                        }
+                    );
                 }
             );
         });
     },
 
-    // Delete a user role relationship
+    //deactivated  a user role relationship
     deleteUserRole: (user_role_id) => {
         return new Promise((resolve, reject) => {
             pool.query(

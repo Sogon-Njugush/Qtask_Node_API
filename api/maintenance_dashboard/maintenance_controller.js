@@ -1,7 +1,7 @@
 const {getCount, getMTTR, getRecentUpdate, getTicketTraffic,getBreached,getBreachedAnalysis,getTicketListByStatus,getReportByRegion,
     getReportCounts,getTechnicianReport,getTicketSLAStatus,reAssignTicket,holdTicket,updateTicket,activateTicket,
     closeTicket,reOpenTicket,completeTicket,getMap, getHeatMap,createNocComment,getNocComment,deleteNocComment,
-    updateNocComment,addNocComment,getMapDistribution,updateSite,deleteTicket,getSiteById,activeTechnician} = require('./maintenance_service');
+    updateNocComment,addNocComment,getMapDistribution,updateSite,deleteTicket,getSiteById,activeTechnician,getTicketFaults} = require('./maintenance_service');
 require('dotenv').config();
 const AppError  = require("../../util/appError");
 // const {sign} = require('jsonwebtoken');
@@ -402,18 +402,13 @@ module.exports = {
     //tick distribution map
     getMapDistribution: async (req, res, next)=>{
         try{
-            const { from_date, to_date, client_id, service_type,sla_status, ticket_status, site } = req.query;
-            // Validate required parameters
-            if (!from_date || !to_date || !client_id || !service_type || !sla_status || !ticket_status || !site) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Missing required query parameters.",
-                });
-            }
-
-            const result = await getMapDistribution(from_date, to_date, client_id, service_type,sla_status, ticket_status, site);
+            const body = req.query.company_id;
+            const result = await getMapDistribution(body);
+            // if(!result.length){
+            //     throw new AppError("Error Bom not found!",403);
+            // }
             return res.json({
-                success:true,
+                success: true,
                 data: result,
             });
         }catch (e) {
@@ -463,6 +458,19 @@ module.exports = {
         try{
             const data = req.query.company_id;
             const result = await activeTechnician(data);
+            return res.json({
+                success:true,
+                data: result,
+            });
+        }catch (e) {
+            next(e)
+        }
+    },
+    //ticket fault distribution
+    getTicketFaults: async (req, res)=>{
+        try{
+            const body = req.query.company_id;
+            const result = await getTicketFaults(body);
             return res.json({
                 success:true,
                 data: result,

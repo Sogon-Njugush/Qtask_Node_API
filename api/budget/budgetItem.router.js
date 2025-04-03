@@ -1,5 +1,6 @@
 const { createBudgetItem, deleteBudgetItem, getBudgetItems, getBudgetItem, updateBudgetItem,createSegmentBudget,
-deleteSegmentBudget,getSegmentBudgetById,getSegmentBudgets,updateSegmentBudget,getSegmentExpenditure,updateSegmentActualBudget} = require('./budgetItem.controller');
+deleteSegmentBudget,getSegmentBudgetById,getSegmentBudgets,updateSegmentBudget,getSegmentExpenditure,
+    updateSegmentActualBudget,getProjectExpenditure} = require('./budgetItem.controller');
 const router = require('express').Router();
 
 // Validate token
@@ -38,8 +39,12 @@ router.patch('/updateSegmentActualBudget', checkToken, updateSegmentActualBudget
 
 // Delete a segment budget
 router.delete('/deleteSegmentBudget', checkToken, deleteSegmentBudget);
+
 //budget dashboard
 //budget expenditure
 router.delete('/segmentExpenditure', checkToken, getSegmentExpenditure);
+
+//project expenditure
+router.delete('/projectExpenditure', checkToken, getProjectExpenditure);
 
 module.exports = router;

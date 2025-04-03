@@ -99,14 +99,14 @@ module.exports = {
         return new Promise((resolve, reject) => {
             pool.query(
                 `INSERT INTO segment_acceptance_handover 
-                (acceptance_segment_id, acceptance_score, acceptance_description, acceptance_parameter_id, acceptance_file, acceptance_date, acceptance_user_id, acceptance_status,acceptance_approval_status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`,
+            (acceptance_segment_id, acceptance_score, acceptance_description, acceptance_parameter_id, acceptance_file, acceptance_date, acceptance_user_id, acceptance_status, acceptance_approval_status) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     data.acceptance_segment_id,
                     data.acceptance_score,
                     data.acceptance_description,
-                    data.acceptance_parameter_id,
-                    data.acceptance_file,
+                    data.acceptance_parameter_id || null, // Handle optional field
+                    data.acceptance_file, // File path or null
                     data.acceptance_date,
                     data.acceptance_user_id,
                     'Active',
@@ -302,7 +302,8 @@ module.exports = {
     getAllSegmentClosureWithPassChecks: (segment_id) => {
         return new Promise((resolve, reject) => {
             pool.query(
-                `SELECT scc.* FROM segment_closure_check scc
+                `SELECT scc.*, pcp.parameter_name FROM segment_closure_check scc
+INNER JOIN project_closure_parameter pcp ON scc.project_closure_parameter_id = pcp.project_closure_parameter_id
   LEFT JOIN segment_acceptance_handover sah
     ON scc.segment_closure_check_id = sah.acceptance_parameter_id
     AND sah.acceptance_score = 'Pass'

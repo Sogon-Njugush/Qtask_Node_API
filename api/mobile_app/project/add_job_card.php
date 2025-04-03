@@ -5,7 +5,7 @@ $response = array('error' => true, 'message' => '');
 
 try {
     // Check if all required parameters are provided
-    if (isset($_GET['project_assign_id'], $_GET['location'], $_GET['comment'], $_GET['user_id'], $_GET['service_id'], $_GET['service_quantity'])) {
+    if (isset($_GET['project_assign_id'], $_GET['location'], $_GET['comment'], $_GET['user_id'], $_GET['service_id'], $_GET['service_quantity'], $_GET['segment_id'])) {
 
         // Date setup
         date_default_timezone_set('Africa/Nairobi');

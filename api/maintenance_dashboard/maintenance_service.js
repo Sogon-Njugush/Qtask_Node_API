@@ -877,21 +877,7 @@ GROUP BY
     getMap: (ticket_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
-                `SELECT 
-                SUBSTRING_INDEX(ticket_service.activity_location, ',', 1) AS lat,
-                SUBSTRING_INDEX(ticket_service.activity_location, ',', -1) AS lon,
-                ticket_service.service_title,
-                ticket_service_image.ticket_service_image,
-                customer.customer_name,
-                ticket.ticket_no,
-                ticket_service.ticket_update_time,
-                ticket_service.ticket_action_description,
-                CONCAT(Users.user_firstname, ' ', Users.user_lastname) AS user_name
-              FROM ticket_service
-              INNER JOIN ticket_service_image ON ticket_service_image.ticket_service_id = ticket_service.ticket_service_id 
-              INNER JOIN ticket ON ticket.ticket_id = ticket_service.ticket_id
-              INNER JOIN customer ON customer.customer_id = ticket.ticket_customer_id
-              INNER JOIN Users ON ticket_service.ticket_agent_id = Users.user_id
+                `z
               WHERE ticket_service.activity_location != '' 
               AND ticket.ticket_id = ?`,[ticket_id],
                 (error, results, fields) =>{
@@ -1040,7 +1026,7 @@ GROUP BY
         })
     },
     //get map distribution
-    getMapDistribution: (from_date, to_date, client_id, service_type, sla_status, ticket_status, site)=>{
+    getMapDistribution: (company_id)=>{
         return new Promise((resolve,reject) => {
             pool.query(
                 `SELECT 
@@ -1050,21 +1036,22 @@ GROUP BY
                 ticket_service_image.ticket_service_image,
                 customer.customer_name,
                 ticket.ticket_no,
+                DATE_FORMAT(ticket.ticket_actual_time, '%Y-%m-%d') AS ticket_actual_time,
+                ticket.ticket_state,
+                ticket.ticket_status,
+                site.site_name,
+                service_type.service_name,
                 ticket_service.ticket_update_time,
                 ticket_service.ticket_action_description,
                 CONCAT(Users.user_firstname, ' ', Users.user_lastname) AS user_name
               FROM ticket_service
               INNER JOIN ticket_service_image ON ticket_service_image.ticket_service_id = ticket_service.ticket_service_id 
               INNER JOIN ticket ON ticket.ticket_id = ticket_service.ticket_id
+              INNER JOIN service_type ON service_type.service_type_id = ticket.ticket_service_type_id
+              INNER JOIN site ON site.site_id = ticket.ticket_site_id
               INNER JOIN customer ON customer.customer_id = ticket.ticket_customer_id
-              INNER JOIN Users ON ticket_service.ticket_agent_id = Users.user_id
-            WHERE (DATE_FORMAT(ticket_service.ticket_update_time, '%Y-%m-%d') BETWEEN ? AND ?)
-            AND (ticket.ticket_customer_id = ? )
-            AND (ticket.ticket_service_type_id = ?)
-            AND (ticket.ticket_status = ?)
-            AND (ticket.ticket_state = ?)
-            AND (ticket.ticket_site_id = ?)
-            ORDER BY ticket_service.ticket_service_id DESC`,[from_date, to_date, client_id, service_type,ticket_status,sla_status,site],
+              INNER JOIN Users ON ticket_service.ticket_agent_id = Users.user_id 
+              WHERE service_type.service_type_branch_id = ?`,[company_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);
@@ -1130,6 +1117,41 @@ GROUP BY
     WHERE Users.user_company_id = ?
     AND tickect_acknoledge_date != ''
     AND DATE_FORMAT(STR_TO_DATE(ticket_assign_time, '%a %b %d %Y %H:%i:%s GMT+0300 (East Africa Time)'), '%Y-%m-%d') = CURDATE()`,[company_id],
+                (error, results, fields) =>{
+                    if(error){
+                        return reject(error);
+                    }
+                    return resolve(results);
+                }
+            );
+        });
+    },
+    //ticket fault  distribution
+    getTicketFaults: (company_id)=>{
+        return new Promise((resolve,reject) => {
+            pool.query(
+                `SELECT 
+                SUBSTRING_INDEX(ticket_fault_cause.fault_location, ',', 1) AS lat,
+                SUBSTRING_INDEX(ticket_fault_cause.fault_location, ',', -1) AS lon,
+                ticket_fault_cause.fault_type,
+                ticket_fault_cause.fault_cause,
+                ticket_fault_cause.fault_description,
+                ticket_fault_cause.fault_create_date,
+                customer.customer_name,
+                ticket.ticket_no,
+                DATE_FORMAT(ticket.ticket_actual_time, '%Y-%m-%d') AS ticket_actual_time,
+                ticket.ticket_state,
+                ticket.ticket_status,
+                site.site_name,
+                service_type.service_name,
+                CONCAT(Users.user_firstname, ' ', Users.user_lastname) AS user_name
+              FROM ticket_fault_cause 
+              INNER JOIN ticket ON ticket.ticket_id = ticket_fault_cause.ticket_id
+              INNER JOIN service_type ON service_type.service_type_id = ticket.ticket_service_type_id
+              INNER JOIN site ON site.site_id = ticket.ticket_site_id
+              INNER JOIN customer ON customer.customer_id = ticket.ticket_customer_id
+              INNER JOIN Users ON ticket_fault_cause.user_id = Users.user_id 
+              WHERE service_type.service_type_branch_id = ?`,[company_id],
                 (error, results, fields) =>{
                     if(error){
                         return reject(error);

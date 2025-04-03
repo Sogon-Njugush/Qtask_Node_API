@@ -7,6 +7,31 @@ const router = require('express').Router();
 // Validate token
 const { checkToken } = require("../../authentication/tokenValidation");
 
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+// Define Upload Directory
+const uploadDir = path.join(__dirname, "../../upload/acceptanceFiles");
+
+// Ensure the directory exists
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure Multer for File Uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadDir); // Save files in the correct directory
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage });
+
 // Create Project Closure Parameter
 router.post("/createClosureParameter", checkToken, createProjectClosureParameter);
 

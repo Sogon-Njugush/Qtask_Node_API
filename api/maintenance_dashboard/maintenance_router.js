@@ -1,7 +1,7 @@
 const {getCount, getMTTR,getRecentUpdate,getTicketTraffic,getBreached,getBreachedAnalysis,getTicketListByStatus,getReportByRegion,
     getReportCounts,getTechnicianReport, getTicketSLAStatusController,reAssignTicket,holdTicket,updateTicket,activateTicket,
     closeTicket,reOpenTicket,completeTicket,getMap,getHeatMap,createNocComment,getNocComment,deleteNocComment,
-    updateNocComment,addNocComment,getMapDistribution,updateSite,deleteTicket,getSiteById,activeTechnician} = require('./maintenance_controller');
+    updateNocComment,addNocComment,getMapDistribution,updateSite,deleteTicket,getSiteById,activeTechnician,getTicketFaults} = require('./maintenance_controller');
 const router = require('express').Router();
 
 //validate token
@@ -62,7 +62,7 @@ router.delete("/deleteNocComment",checkToken, deleteNocComment);
 //new noc comment creation
 router.post('/newCreatNocComment', checkToken, addNocComment);
 //ticket distribution map
-router.post('/distributionMap ', checkToken, getMapDistribution);
+router.get('/distributionMap ', checkToken, getMapDistribution);
 //update site
 router.patch('/updateSite ', checkToken, updateSite);
 //get site
@@ -71,5 +71,7 @@ router.patch('/getSiteById ', checkToken, getSiteById);
 router.delete('/deleteTicket', checkToken, deleteTicket);
 //active users
 router.get('/activeTechnician', checkToken, activeTechnician);
+//get fault distribution
+router.get('/faultsMap ', checkToken, getTicketFaults);
 
 module.exports = router;

@@ -83,10 +83,12 @@ module.exports = {
             next(e);
         }
     },
+
     // Create Segment Acceptance
     createSegmentAcceptance: async (req, res, next) => {
         try {
             const body = req.body;
+            const file = req.file; // Multer adds the uploaded file to req.file
 
             // Check if the request body is empty
             if (!body || Object.keys(body).length === 0) {
@@ -112,6 +114,13 @@ module.exports = {
                     success: false,
                     message: `Missing required fields: ${missingFields.join(', ')}`
                 });
+            }
+
+            // Add the file path to the data if a file was uploaded
+            if (file) {
+                body.acceptance_file = file.filename; // Save the file name or path
+            } else {
+                body.acceptance_file = null; // Set to null if no file was uploaded
             }
 
             // Insert segment acceptance data into the database
